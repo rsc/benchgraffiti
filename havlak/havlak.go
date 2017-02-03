@@ -260,6 +260,18 @@ func appendUnique(a []int, x int) []int {
 	return append(a, x)
 }
 
+
+var cache struct {
+	size int
+	nonBackPreds [][]int
+	backPreds [][]int
+	number []int
+	header []int
+	types []int
+	last []int
+	nodes []*UnionFindNode
+}
+
 // FindLoops
 //
 // Find loops and build loop forest using Havlak's algorithm, which
@@ -273,19 +285,35 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 	}
 
 	size := cfgraph.NumNodes()
-
-	nonBackPreds := make([][]int, size)
-	backPreds := make([][]int, size)
-
-	number := make([]int, size)
-	header := make([]int, size, size)
-	types := make([]int, size, size)
-	last := make([]int, size, size)
-	nodes := make([]*UnionFindNode, size, size)
-
-	for i := 0; i < size; i++ {
-		nodes[i] = new(UnionFindNode)
+	
+	if cache.size < size {
+		cache.size = size
+		cache.nonBackPreds = make([][]int, size)
+		cache.backPreds = make([][]int, size)
+		cache.number = make([]int, size)
+		cache.header = make([]int, size)
+		cache.types = make([]int, size)
+		cache.last = make([]int, size)
+		cache.nodes = make([]*UnionFindNode, size)
+		for i := range cache.nodes {
+			cache.nodes[i] = new(UnionFindNode)
+		}
 	}
+
+	nonBackPreds := cache.nonBackPreds[:size]
+	for i := range nonBackPreds {
+		nonBackPreds[i] = nonBackPreds[i][:0]
+	}
+	backPreds := cache.backPreds[:size]
+	for i := range nonBackPreds {
+		backPreds[i] = backPreds[i][:0]
+	}
+	number := cache.number[:size]
+	header := cache.header[:size]
+	types := cache.types[:size]
+	last := cache.last[:size]
+	nodes := cache.nodes[:size]
+
 
 	// Step a:
 	//   - initialize all nodes as unvisited.
