@@ -671,6 +671,7 @@ func buildBaseLoop(cfgraph *CFG, from int) int {
 }
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to this file")
+var memprofile = flag.String("memprofile", "", "write memory profile to this file")
 
 func main() {
 	flag.Parse()
@@ -716,6 +717,15 @@ func main() {
 	}
 
 	FindHavlakLoops(cfgraph, lsgraph)
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+		return
+	}
 
 	for i := 0; i < 50; i++ {
 		FindHavlakLoops(cfgraph, NewLSG())
