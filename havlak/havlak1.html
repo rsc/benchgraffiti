@@ -1,0 +1,182 @@
+<DOCTYPE html>
+<html>
+<head>
+<title>Pprof listing</title>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+}
+h1 {
+  font-size: 1.5em;
+  margin-bottom: 4px;
+}
+.legend {
+  font-size: 1.25em;
+}
+.line {
+  color: #aaaaaa;
+}
+.livesrc {
+  color: #0000ff;
+  cursor: pointer;
+}
+.livesrc:hover {
+  background-color: #cccccc;
+}
+.asm {
+  color: #888888;
+  display: none;
+}
+</style>
+<script type="text/javascript">
+function pprof_toggle_asm(e) {
+  var target;
+  if (!e) e = window.event;
+  if (e.target) target = e.target;
+  else if (e.srcElement) target = e.srcElement;
+
+  if (target && target.className == "livesrc") {
+    var asm = target.nextSibling;
+    if (asm && asm.className == "asm") {
+      asm.style.display = (asm.style.display == "block" ? "none" : "block");
+      e.preventDefault();
+      return false;
+    }
+  }
+}
+</script>
+</head>
+<body>
+<div class="legend">havlak1<br>Total: 5758 samples</div>
+<h1>main.DFS</h1>/home/rsc/g/benchgraffiti/havlak/havlak1.go
+<pre onClick="pprof_toggle_asm()">
+Total:   225   2296 (flat / cumulative samples)
+<span class="line">  235</span> <span class="deadsrc">              	return false</span>
+<span class="line">  236</span> <span class="deadsrc">              }</span>
+<span class="line">  237</span> <span class="deadsrc">              </span>
+<span class="line">  238</span> <span class="deadsrc">              // DFS - Depth-First-Search and node numbering.</span>
+<span class="line">  239</span> <span class="deadsrc">              //</span>
+<span class="line">  240</span> <span class="livesrc">     3      3 func DFS(currentNode *BasicBlock, nodes []*UnionFindNode, number map[*BasicBlock]int, last []int, current int) int {</span><span class="asm">           1      1 		0000000000401675: mov    %fs:0xfffffffffffffff0,%rcx
+                    		000000000040167e: cmp    (%rcx),%rsp
+                    		0000000000401681: ja     40168d &lt;main.DFS+0x18&gt;
+                    		0000000000401683: mov    $0x40,%eax
+                    		0000000000401688: callq  4046cd &lt;runtime.morestack01&gt;
+           2      2 		000000000040168d: sub    $0x70,%rsp
+                    		0000000000401691: mov    0xa8(%rsp),%eax
+</span>
+<span class="line">  241</span> <span class="livesrc">    18     19 	nodes[current].Init(currentNode, current)</span><span class="asm">                    		0000000000401698: movslq %eax,%rbx
+                    		000000000040169b: cmp    0x88(%rsp),%ebx
+                    		00000000004016a2: jb     4016a9 &lt;main.DFS+0x34&gt;
+                    		00000000004016a4: callq  41219a &lt;runtime.panicindex&gt;
+                    		00000000004016a9: mov    0x80(%rsp),%rbp
+                    		00000000004016b1: mov    0x0(%rbp,%rbx,8),%r8
+          17     17 		00000000004016b6: mov    %r8,(%rsp)
+           1      1 		00000000004016ba: mov    0x78(%rsp),%rbx
+                    		00000000004016bf: mov    %rbx,0x8(%rsp)
+                    		00000000004016c4: mov    %eax,0x10(%rsp)
+                  1 		00000000004016c8: callq  401497 &lt;main.*UnionFindNode·Init&gt;
+</span>
+<span class="line">  242</span> <span class="livesrc">          166 	number[currentNode] = current</span><span class="asm">                    		00000000004016cd: mov    0x90(%rsp),%rbx
+                    		00000000004016d5: mov    %rbx,(%rsp)
+                    		00000000004016d9: mov    0x78(%rsp),%rbx
+                    		00000000004016de: mov    %rbx,0x8(%rsp)
+                    		00000000004016e3: mov    0xa8(%rsp),%ebx
+                    		00000000004016ea: mov    %ebx,0x10(%rsp)
+                166 		00000000004016ee: callq  4089b2 &lt;runtime.mapassign1&gt;
+</span>
+<span class="line">  243</span> <span class="deadsrc">              </span>
+<span class="line">  244</span> <span class="livesrc">     2      2 	lastid := current</span><span class="asm">           2      2 		00000000004016f3: mov    0xa8(%rsp),%ebx
+                    		00000000004016fa: mov    %ebx,0x4c(%rsp)
+</span>
+<span class="line">  245</span> <span class="livesrc">   167    167 	for _, target := range currentNode.OutEdges {</span><span class="asm">                    		00000000004016fe: mov    0x78(%rsp),%rbx
+                    		0000000000401703: add    $0x18,%rbx
+                    		0000000000401707: mov    (%rbx),%rbp
+          39     39 		000000000040170a: mov    %rbp,0x58(%rsp)
+           2      2 		000000000040170f: mov    0x8(%rbx),%ebp
+           3      3 		0000000000401712: mov    %ebp,0x60(%rsp)
+                    		0000000000401716: mov    0xc(%rbx),%ebp
+                    		0000000000401719: mov    %ebp,0x64(%rsp)
+           1      1 		000000000040171d: xor    %eax,%eax
+                    		000000000040171f: mov    0x60(%rsp),%ebx
+                    		0000000000401723: mov    %ebx,0x48(%rsp)
+                    		0000000000401727: lea    0x58(%rsp),%rbx
+                    		000000000040172c: mov    (%rbx),%rcx
+                    		000000000040172f: mov    0x48(%rsp),%ebp
+                    		0000000000401733: cmp    %ebp,%eax
+                    		0000000000401735: jge    401807 &lt;main.DFS+0x192&gt;
+                    		000000000040173b: mov    %eax,0x44(%rsp)
+                    		000000000040173f: mov    (%rcx),%rax
+         117    117 		0000000000401742: mov    %rcx,%rbx
+           4      4 		0000000000401745: add    $0x8,%rbx
+                    		0000000000401749: mov    %rbx,0x68(%rsp)
+                    		00000000004017f9: inc    %eax
+                    		00000000004017fb: mov    0x48(%rsp),%ebp
+           1      1 		00000000004017ff: cmp    %ebp,%eax
+                    		0000000000401801: jl     40173b &lt;main.DFS+0xc6&gt;
+</span>
+<span class="line">  246</span> <span class="livesrc">    17    508 		if number[target] == unvisited {</span><span class="asm">                    		000000000040174e: mov    0x90(%rsp),%rbp
+           6      6 		0000000000401756: mov    %rbp,(%rsp)
+                    		000000000040175a: mov    %rax,0x50(%rsp)
+                    		000000000040175f: mov    %rax,0x8(%rsp)
+           1    492 		0000000000401764: callq  408494 &lt;runtime.mapaccess1&gt;
+           4      4 		0000000000401769: mov    0x68(%rsp),%rcx
+           1      1 		000000000040176e: mov    0x44(%rsp),%eax
+                    		0000000000401772: mov    0x10(%rsp),%ebx
+           5      5 		0000000000401776: cmp    $0xffffffffffffffff,%ebx
+                    		0000000000401779: jne    4017f9 &lt;main.DFS+0x184&gt;
+</span>
+<span class="line">  247</span> <span class="livesrc">    10   1157 			lastid = DFS(target, nodes, number, last, lastid+1)</span><span class="asm">                    		000000000040177b: mov    0x50(%rsp),%rbx
+                    		0000000000401780: mov    %rbx,(%rsp)
+                    		0000000000401784: lea    0x8(%rsp),%rbx
+                    		0000000000401789: mov    0x80(%rsp),%rbp
+                    		0000000000401791: mov    %rbp,(%rbx)
+                    		0000000000401794: mov    0x88(%rsp),%ebp
+                    		000000000040179b: mov    %ebp,0x8(%rbx)
+                    		000000000040179e: mov    0x8c(%rsp),%ebp
+                    		00000000004017a5: mov    %ebp,0xc(%rbx)
+                    		00000000004017a8: mov    0x90(%rsp),%rbx
+                    		00000000004017b0: mov    %rbx,0x18(%rsp)
+                    		00000000004017b5: lea    0x20(%rsp),%rbx
+                    		00000000004017ba: mov    0x98(%rsp),%rbp
+                    		00000000004017c2: mov    %rbp,(%rbx)
+           1      1 		00000000004017c5: mov    0xa0(%rsp),%ebp
+                    		00000000004017cc: mov    %ebp,0x8(%rbx)
+                    		00000000004017cf: mov    0xa4(%rsp),%ebp
+                    		00000000004017d6: mov    %ebp,0xc(%rbx)
+                    		00000000004017d9: mov    0x4c(%rsp),%ebx
+                    		00000000004017dd: inc    %ebx
+                    		00000000004017df: mov    %ebx,0x30(%rsp)
+               1147 		00000000004017e3: callq  401675 &lt;main.DFS&gt;
+           2      2 		00000000004017e8: mov    0x68(%rsp),%rcx
+           7      7 		00000000004017ed: mov    0x44(%rsp),%eax
+                    		00000000004017f1: mov    0x38(%rsp),%ebx
+                    		00000000004017f5: mov    %ebx,0x4c(%rsp)
+</span>
+<span class="line">  248</span> <span class="deadsrc">              		}</span>
+<span class="line">  249</span> <span class="deadsrc">              	}</span>
+<span class="line">  250</span> <span class="livesrc">     7    273 	last[number[currentNode]] = lastid</span><span class="asm">                    		0000000000401807: mov    0x90(%rsp),%rbx
+                    		000000000040180f: mov    %rbx,(%rsp)
+           1      1 		0000000000401813: mov    0x78(%rsp),%rbx
+                    		0000000000401818: mov    %rbx,0x8(%rsp)
+                266 		000000000040181d: callq  408494 &lt;runtime.mapaccess1&gt;
+           1      1 		0000000000401822: mov    0x4c(%rsp),%ecx
+           1      1 		0000000000401826: mov    0x10(%rsp),%eax
+                    		000000000040182a: movslq %eax,%rbx
+           1      1 		000000000040182d: cmp    0xa0(%rsp),%ebx
+           1      1 		0000000000401834: jb     40183b &lt;main.DFS+0x1c6&gt;
+                    		0000000000401836: callq  41219a &lt;runtime.panicindex&gt;
+           1      1 		000000000040183b: mov    0x98(%rsp),%rbp
+           1      1 		0000000000401843: mov    %ecx,0x0(%rbp,%rbx,4)
+</span>
+<span class="line">  251</span> <span class="livesrc">     1      1 	return lastid</span><span class="asm">           1      1 		0000000000401847: mov    %ecx,0xb0(%rsp)
+                    		000000000040184e: add    $0x70,%rsp
+                    		0000000000401852: retq   
+</span>
+<span class="line">  252</span> <span class="deadsrc">              }</span>
+<span class="line">  253</span> <span class="deadsrc">              </span>
+<span class="line">  254</span> <span class="deadsrc">              // FindLoops</span>
+<span class="line">  255</span> <span class="deadsrc">              //</span>
+<span class="line">  256</span> <span class="deadsrc">              // Find loops and build loop forest using Havlak's algorithm, which</span>
+</pre>
+</body>
+</html>
