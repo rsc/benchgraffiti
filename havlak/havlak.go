@@ -251,6 +251,15 @@ func DFS(currentNode *BasicBlock, nodes []*UnionFindNode, number []int, last []i
 	return lastid
 }
 
+func appendUnique(a []int, x int) []int {
+	for _, y := range a {
+		if x == y {
+			return a
+		}
+	}
+	return append(a, x)
+}
+
 // FindLoops
 //
 // Find loops and build loop forest using Havlak's algorithm, which
@@ -265,7 +274,7 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 
 	size := cfgraph.NumNodes()
 
-	nonBackPreds := make([]map[int]bool, size)
+	nonBackPreds := make([][]int, size)
 	backPreds := make([][]int, size)
 
 	number := make([]int, size)
@@ -283,9 +292,8 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 	//   - depth-first traversal and numbering.
 	//   - unreached BB's are marked as dead.
 	//
-	for i, bb := range cfgraph.Blocks {
+	for _, bb := range cfgraph.Blocks {
 		number[bb.Name] = unvisited
-		nonBackPreds[i] = make(map[int]bool)
 	}
 
 	DFS(cfgraph.Start, nodes, number, last, 0)
@@ -320,7 +328,7 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 				if isAncestor(w, v, last) {
 					backPreds[w] = append(backPreds[w], v)
 				} else {
-					nonBackPreds[w][v] = true
+					nonBackPreds[w] = appendUnique(nonBackPreds[w], v)
 				}
 			}
 		}
@@ -390,13 +398,13 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 				return
 			}
 
-			for iter := range nonBackPreds[x.dfsNumber] {
+			for _, iter := range nonBackPreds[x.dfsNumber] {
 				y := nodes[iter]
 				ydash := y.FindSet()
 
 				if !isAncestor(w, ydash.dfsNumber, last) {
 					types[w] = bbIrreducible
-					nonBackPreds[w][ydash.dfsNumber] = true
+					nonBackPreds[w] = appendUnique(nonBackPreds[w], ydash.dfsNumber)
 				} else {
 					if ydash.dfsNumber != w {
 						if !listContainsNode(nodePool, ydash) {
@@ -473,8 +481,8 @@ func FindHavlakLoops(cfgraph *CFG, lsgraph *LSG) int {
 //
 type SimpleLoop struct {
 	// No set, use map to bool
-	basicBlocks map[*BasicBlock]bool
-	Children    map[*SimpleLoop]bool
+	basicBlocks []*BasicBlock
+	Children    []*SimpleLoop
 	Parent      *SimpleLoop
 	header      *BasicBlock
 
@@ -486,11 +494,11 @@ type SimpleLoop struct {
 }
 
 func (loop *SimpleLoop) AddNode(bb *BasicBlock) {
-	loop.basicBlocks[bb] = true
+	loop.basicBlocks = append(loop.basicBlocks, bb)
 }
 
 func (loop *SimpleLoop) AddChildLoop(child *SimpleLoop) {
-	loop.Children[child] = true
+	loop.Children = append(loop.Children, child)
 }
 
 func (loop *SimpleLoop) Dump(indent int) {
@@ -508,13 +516,13 @@ func (loop *SimpleLoop) Dump(indent int) {
 	// must have > 0
 	if len(loop.Children) > 0 {
 		fmt.Printf("Children: ")
-		for ll := range loop.Children {
+		for _, ll := range loop.Children {
 			fmt.Printf("loop-%d", ll.Counter)
 		}
 	}
 	if len(loop.basicBlocks) > 0 {
 		fmt.Printf("(")
-		for bb := range loop.basicBlocks {
+		for _, bb := range loop.basicBlocks {
 			fmt.Printf("BB#%06d ", bb.Name)
 			if loop.header == bb {
 				fmt.Printf("*")
@@ -577,8 +585,6 @@ func NewLSG() *LSG {
 
 func (lsg *LSG) NewLoop() *SimpleLoop {
 	loop := new(SimpleLoop)
-	loop.basicBlocks = make(map[*BasicBlock]bool)
-	loop.Children = make(map[*SimpleLoop]bool)
 	loop.Parent = nil
 	loop.header = nil
 
@@ -598,7 +604,7 @@ func (lsg *LSG) Dump() {
 func (lsg *LSG) dump(loop *SimpleLoop, indent int) {
 	loop.Dump(indent)
 
-	for ll := range loop.Children {
+	for _, ll := range loop.Children {
 		lsg.dump(ll, indent+1)
 	}
 }
@@ -617,7 +623,7 @@ func (lsg *LSG) CalculateNestingLevel() {
 
 func (lsg *LSG) calculateNestingLevel(loop *SimpleLoop, depth int) {
 	loop.DepthLevel = depth
-	for ll := range loop.Children {
+	for _, ll := range loop.Children {
 		lsg.calculateNestingLevel(ll, depth+1)
 
 		ll.NestingLevel = max(loop.NestingLevel, ll.NestingLevel+1)
