@@ -237,17 +237,17 @@ func listContainsNode(l []*UnionFindNode, u *UnionFindNode) bool {
 
 // DFS - Depth-First-Search and node numbering.
 //
-func DFS(currentNode *BasicBlock, nodes []*UnionFindNode, number map[*BasicBlock]int, last []int, current int) int {
+func DFS(currentNode *BasicBlock, nodes []*UnionFindNode, number []int, last []int, current int) int {
 	nodes[current].Init(currentNode, current)
-	number[currentNode] = current
+	number[currentNode.Name] = current
 
 	lastid := current
 	for _, target := range currentNode.OutEdges {
-		if number[target] == unvisited {
+		if number[target.Name] == unvisited {
 			lastid = DFS(target, nodes, number, last, lastid+1)
 		}
 	}
-	last[number[currentNode]] = lastid
+	last[number[currentNode.Name]] = lastid
 	return lastid
 }
 
@@ -268,7 +268,7 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 	nonBackPreds := make([]map[int]bool, size)
 	backPreds := make([][]int, size)
 
-	number := make(map[*BasicBlock]int)
+	number := make([]int, size)
 	header := make([]int, size, size)
 	types := make([]int, size, size)
 	last := make([]int, size, size)
@@ -284,7 +284,7 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 	//   - unreached BB's are marked as dead.
 	//
 	for i, bb := range cfgraph.Blocks {
-		number[bb] = unvisited
+		number[bb.Name] = unvisited
 		nonBackPreds[i] = make(map[int]bool)
 	}
 
@@ -312,7 +312,7 @@ func FindLoops(cfgraph *CFG, lsgraph *LSG) {
 
 		if nodeW.NumPred() > 0 {
 			for _, nodeV := range nodeW.InEdges {
-				v := number[nodeV]
+				v := number[nodeV.Name]
 				if v == unvisited {
 					continue // dead node
 				}
